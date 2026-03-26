@@ -1,0 +1,10 @@
+[project]
+name = "netflix-user-behavior-portfolio"
+version = "0.1.0"
+description = "Beginner-friendly SQL and Python analysis project using the Netflix User Behavior dataset."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "matplotlib>=3.10.0",
+    "pandas>=2.3.0",
+]
