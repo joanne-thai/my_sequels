@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-labelledby="title desc">
+  <title id="title">Retail sales key insights</title>
+  <desc id="desc">A matcha-themed summary of the retail sales project's key insights from the README, verified against the CSV files.</desc>
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f7f4ea"/>
+      <stop offset="100%" stop-color="#eef2df"/>
+    </linearGradient>
+    <linearGradient id="panel2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fffdf8"/>
+      <stop offset="100%" stop-color="#f3f6ea"/>
+    </linearGradient>
+    <style>
+      .title { font: 700 30px 'Avenir Next', 'Trebuchet MS', sans-serif; fill: #2f3825; }
+      .card-title { font: 700 18px 'Avenir Next', 'Trebuchet MS', sans-serif; fill: #324028; }
+      .metric-label { font: 700 13px 'Avenir Next', 'Trebuchet MS', sans-serif; fill: #314026; }
+      .metric-value { font: 700 17px 'Avenir Next', 'Trebuchet MS', sans-serif; fill: #2f3825; }
+      .chip { font: 700 12px 'Avenir Next', 'Trebuchet MS', sans-serif; fill: #f8f7f1; }
+      .big-metric { font: 700 26px 'Avenir Next', 'Trebuchet MS', sans-serif; fill: #2f3825; }
+      .small-note { font: 500 11px 'Avenir Next', 'Trebuchet MS', sans-serif; fill: #6a745b; }
+    </style>
+  </defs>
+
+  <rect width="800" height="600" fill="url(#bg2)"/>
+  <circle cx="92" cy="76" r="82" fill="#dfe7cb" opacity="0.55"/>
+  <circle cx="724" cy="548" r="90" fill="#d6dfbe" opacity="0.45"/>
+  <circle cx="748" cy="132" r="58" fill="#ebefde" opacity="0.75"/>
+
+  <text x="32" y="56" class="title">Retail Sales Key Insights</text>
+
+  <rect x="30" y="92" width="424" height="326" rx="26" fill="url(#panel2)" stroke="#cfd8bb"/>
+  <rect x="470" y="92" width="300" height="156" rx="24" fill="url(#panel2)" stroke="#cfd8bb"/>
+  <rect x="470" y="264" width="300" height="154" rx="24" fill="url(#panel2)" stroke="#cfd8bb"/>
+  <rect x="30" y="438" width="740" height="132" rx="26" fill="url(#panel2)" stroke="#cfd8bb"/>
+
+  <text x="54" y="128" class="card-title">1. Discount risk</text>
+
+  <rect x="54" y="150" width="376" height="40" rx="18" fill="#dce7c4"/>
+  <text x="74" y="175" class="metric-label">No discount</text>
+  <text x="398" y="176" text-anchor="end" class="metric-value">+$321K</text>
+
+  <rect x="54" y="198" width="376" height="40" rx="18" fill="#e6edd4"/>
+  <text x="74" y="223" class="metric-label">Low discount</text>
+  <text x="398" y="224" text-anchor="end" class="metric-value">+$101K</text>
+
+  <rect x="54" y="246" width="376" height="40" rx="18" fill="#ece1c9"/>
+  <text x="74" y="271" class="metric-label">Medium discount</text>
+  <text x="398" y="272" text-anchor="end" class="metric-value">-$59K</text>
+
+  <rect x="54" y="294" width="376" height="40" rx="18" fill="#dfcba5"/>
+  <text x="74" y="319" class="metric-label">High discount</text>
+  <text x="398" y="320" text-anchor="end" class="metric-value">-$77K</text>
+
+  <rect x="54" y="354" width="220" height="30" rx="15" fill="#52633f"/>
+  <text x="164" y="374" text-anchor="middle" class="chip">Discounted sales: about -$35K</text>
+
+  <text x="494" y="128" class="card-title">2. Top sales</text>
+  <rect x="494" y="154" width="120" height="56" rx="18" fill="#dce7c4"/>
+  <rect x="628" y="154" width="118" height="56" rx="18" fill="#dce7c4"/>
+  <text x="554" y="178" text-anchor="middle" class="metric-label">Phones</text>
+  <text x="554" y="198" text-anchor="middle" class="metric-value">$330K</text>
+  <text x="687" y="178" text-anchor="middle" class="metric-label">Chairs</text>
+  <text x="687" y="198" text-anchor="middle" class="metric-value">$328K</text>
+
+  <text x="494" y="300" class="card-title">3. Top profit</text>
+  <rect x="494" y="324" width="252" height="56" rx="22" fill="#e6edd4"/>
+  <text x="620" y="348" text-anchor="middle" class="metric-label">Copiers</text>
+  <text x="620" y="372" text-anchor="middle" class="big-metric">+$55.6K</text>
+
+  <text x="54" y="476" class="card-title">4. Loss watch</text>
+
+  <rect x="54" y="520" width="150" height="30" rx="15" fill="#dfcba5"/>
+  <rect x="218" y="520" width="168" height="30" rx="15" fill="#eadcc0"/>
+  <rect x="414" y="510" width="302" height="42" rx="21" fill="#52633f"/>
+  <text x="129" y="540" text-anchor="middle" class="metric-label">Tables: -$17.7K</text>
+  <text x="302" y="540" text-anchor="middle" class="metric-label">Bookcases: -$3.5K</text>
+  <text x="565" y="536" text-anchor="middle" class="chip">Keep 20%+ discounts selective</text>
+
+</svg>

@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-labelledby="diagram-desc">
+  <desc id="diagram-desc">A simplified ERD for the retail sales project with orders in the center connected to customer, product, and employees.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f6f3e8"/>
+      <stop offset="100%" stop-color="#edf0df"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fffdf8"/>
+      <stop offset="100%" stop-color="#f3f6ea"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6f8154"/>
+    </marker>
+    <style>
+      .entity-head { font: 700 14px 'Avenir Next', 'Trebuchet MS', sans-serif; fill: #f7f6ef; letter-spacing: 1px; }
+      .field { font: 500 14px 'Avenir Next', 'Trebuchet MS', sans-serif; fill: #2f3825; }
+      .badge { font: 700 11px 'Avenir Next', 'Trebuchet MS', sans-serif; fill: #4d5b3c; letter-spacing: 1px; }
+      .link { fill: none; stroke: #6f8154; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <circle cx="110" cy="88" r="92" fill="#dbe4c3" opacity="0.45"/>
+  <circle cx="700" cy="510" r="98" fill="#d5ddba" opacity="0.4"/>
+  <circle cx="720" cy="118" r="54" fill="#e7ecd8" opacity="0.65"/>
+
+  <rect x="28" y="28" width="744" height="544" rx="30" fill="url(#panel)" stroke="#cfd8bb"/>
+
+  <rect x="76" y="96" width="176" height="126" rx="22" fill="#ffffff" stroke="#aebc8b"/>
+  <rect x="76" y="96" width="176" height="34" rx="22" fill="#6f8154"/>
+  <text x="96" y="118" class="entity-head">CUSTOMER</text>
+  <text x="96" y="154" class="field">ID</text>
+  <text x="96" y="180" class="field">NAME</text>
+  <text x="96" y="206" class="field">SEGMENT</text>
+
+  <rect x="552" y="96" width="172" height="152" rx="22" fill="#ffffff" stroke="#aebc8b"/>
+  <rect x="552" y="96" width="172" height="34" rx="22" fill="#6f8154"/>
+  <text x="572" y="118" class="entity-head">PRODUCT</text>
+  <text x="572" y="154" class="field">ID</text>
+  <text x="572" y="180" class="field">CATEGORY</text>
+  <text x="572" y="206" class="field">SUBCATEGORY</text>
+  <text x="572" y="232" class="field">PRODUCT NAME</text>
+
+  <rect x="100" y="410" width="170" height="104" rx="22" fill="#ffffff" stroke="#aebc8b"/>
+  <rect x="100" y="410" width="170" height="34" rx="22" fill="#6f8154"/>
+  <text x="120" y="432" class="entity-head">EMPLOYEES</text>
+  <text x="120" y="468" class="field">ID</text>
+  <text x="120" y="494" class="field">REGION</text>
+
+  <rect x="286" y="226" width="236" height="194" rx="24" fill="#f7f9f0" stroke="#8fa06d" stroke-width="1.5"/>
+  <rect x="286" y="226" width="236" height="36" rx="24" fill="#4f613d"/>
+  <text x="306" y="249" class="entity-head">ORDERS</text>
+  <text x="306" y="288" class="field">ORDER_ID</text>
+  <text x="306" y="314" class="field">ORDER_DATE</text>
+  <text x="306" y="340" class="field">CUSTOMER_ID</text>
+  <text x="306" y="366" class="field">PRODUCT_ID</text>
+  <text x="306" y="392" class="field">EMPLOYEE_ID</text>
+
+  <path d="M252 160 L270 160 L270 340 L286 340" class="link" marker-end="url(#arrow)"/>
+  <path d="M552 176 L536 176 L536 366 L522 366" class="link" marker-end="url(#arrow)"/>
+  <path d="M270 462 L278 462 L278 392 L286 392" class="link" marker-end="url(#arrow)"/>
+
+  <rect x="242" y="148" width="56" height="22" rx="11" fill="#e4ebd1"/>
+  <text x="270" y="163" text-anchor="middle" class="badge">1 : M</text>
+  <rect x="508" y="164" width="56" height="22" rx="11" fill="#e4ebd1"/>
+  <text x="536" y="179" text-anchor="middle" class="badge">1 : M</text>
+  <rect x="242" y="450" width="56" height="22" rx="11" fill="#e4ebd1"/>
+  <text x="270" y="465" text-anchor="middle" class="badge">1 : M</text>
+</svg>
