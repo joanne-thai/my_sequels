@@ -1,34 +1,93 @@
 # Retail Sales Performance Analysis (MySQL)
 
 ## Overview  
-This project analyzes retail transactional data using MySQL to identify key drivers of revenue and profitability across products, customers, and discount strategies. The workflow simulates a real-world analytics process, including data validation, cleaning, exploratory analysis, and automated reporting.
 
----
+This project analyses retail sales data in MySQL to understand sales trends, discount impact, customer segment profitability, and employee performance.
+
+The dataset combines transaction-level, product-level, customer-level, and employee-level information, making it possible to analyse performance from multiple business perspectives. The workflow simulates a real-world analytics process, including data validation, cleaning, exploratory analysis, and automated reporting.
 
 ## Business Problem  
-The business lacks clear visibility into how discount strategies and product categories impact profitability. While discounts may increase order volume, their effect on profit margins is unclear, and there is no structured reporting to evaluate performance across segments and employees.
 
----
+The business needs to answer several key questions:
+
+- How are sales changing over time?
+- How do different discount levels affect order volume and profit?
+- Which product categories perform best for different customer segments?
+- How much does each product category contribute to employee profit?
+- How can reporting be made more reusable for employee-level performance checks?
+
+Answering these questions helps improve pricing decisions, segment targeting, category focus, and internal performance reporting.
 
 ## Data Model  
 The dataset follows a relational structure where `orders` acts as the central fact table, connected to dimension tables including `product`, `customer`, and `employee`. This structure resembles a star schema, enabling efficient analytical queries across multiple business dimensions.
 
----
+## Approach
+The project follows a structured SQL workflow:
+
+- validated raw data quality before analysis
+- standardised date fields in the orders table
+- analysed quarterly sales trends for a selected category
+- evaluated discount impact using discount banding
+- ranked product category profitability within customer segments
+- calculated category contribution to each employee’s total profit
+- created a reusable **user-defined function** for employee-category profitability
+- created a **stored procedure** for date-range employee reporting
+
+This workflow combines one-off analysis with reusable SQL components for reporting. 
 
 ## Data Preparation  
-Initial validation and cleaning were performed to ensure data reliability. Record counts and missing values were checked, and inconsistent date formats were standardized using `STR_TO_DATE()`. Table relationships were validated to ensure accurate joins across product, customer, and employee data.
 
----
+### 1. Data Validation
+The project begins with basic validation checks on the raw data before any analysis is performed.
+
+This includes:
+- counting total order rows
+- checking for missing `ORDER_DATE` values
+- reviewing category distribution in the product table
+
+This step is important because the rest of the analysis depends on reliable dates and usable category labels. It also shows awareness that analysis should start with data quality checks, not just reporting queries. 
+
+### 2. Data Cleaning
+The SQL script standardises both `ORDER_DATE` and `SHIP_DATE` using `STR_TO_DATE()` and conditional logic.
+
+Two date formats are handled:
+- `%m/%d/%Y`
+- `%Y/%d/%m`
+
+This ensures the order and shipping fields can be used consistently in time-based analysis, such as quarter grouping and date-range filtering. Without this step, quarterly trend analysis and stored procedure filtering would be unreliable.
 
 ## Key Analyses  
 
 ### Sales Trend Analysis  
-Quarterly sales trends were analyzed to identify seasonality and revenue patterns over time.
+
+The project analyses quarterly sales performance for the **Furnishings** category.
+
+The query:
+- joins `orders` with `product`
+- filters to `CATEGORY = 'Furnishings'`
+- groups by year and quarter
+- calculates total sales for each quarter
+
+This helps identify how one product category performs over time rather than looking only at total business performance. It is useful for spotting seasonal strength, slower periods, or category-specific trend shifts. 
 
 ### Discount Impact Analysis  
-Discount levels were categorized into four groups (No, Low, Medium, High) to evaluate their impact on order volume, total profit, and profitability per transaction.
+
+Discount impact is analysed by grouping discounts into four levels:
+
+- **No Discount**
+- **Low Discount**
+- **Medium Discount**
+- **High Discount**
+
+The query then compares:
+- number of distinct orders
+- total profit
+- across product categories and discount levels
+
+This is a strong business-focused analysis because discounts do not just affect volume — they also affect margin. By combining order count with total profit, the query helps assess whether a higher discount level is actually beneficial or simply eroding profitability.
 
 ### Category Performance  
+
 Product categories were evaluated based on both revenue and profit to distinguish high-performing and underperforming segments.
 
 ### Customer Segment Analysis  
