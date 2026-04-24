@@ -89,10 +89,6 @@ The query then compares:
 
 This is a strong business-focused analysis because discounts do not just affect volume, they also affect margin. By combining order count with total profit, the query helps assess whether a higher discount level is actually beneficial or simply eroding profitability.
 
-### Category Performance  
-
-Product categories were evaluated based on both revenue and profit to distinguish high-performing and underperforming segments.
-
 ### Customer Segment Profitability  
 
 The project identifies the **top 2 most profitable product categories** within each customer segment.
@@ -158,7 +154,7 @@ The quarterly sales trend for the **Furnishings** category shows clear variation
 - Lowest quarter: **Q1-2014**, with approximately **$1.6K**  
 - Other low-performing quarters include **Q2-2014 (~$2.2K)** and **Q1-2017 (~$2.8K)**  
 
-This suggests that Furnishings sales are not evenly distributed across time, with stronger performance concentrated toward the end of the year.  Q4 appears to be the strongest period, suggesting that inventory planning and promotions for this category should be focused around end-of-year demand.
+This suggests that 'Furnishings' sales are not evenly distributed across time, with stronger performance concentrated toward the end of the year.  Q4 appears to be the strongest period, suggesting that inventory planning and promotions for this category should be focused on end-of-year demand.
 
 ### 2. Heavy Discounts Often Reduce Profitability
 
@@ -166,7 +162,7 @@ The discount analysis shows that higher discounts do not always improve profit. 
 
 For example, **Binders** generated approximately **$39.3K profit** with no discount and **$29.4K profit** with low discounts, but high discounts resulted in a **$38.5K loss**. A similar pattern appears in **Tables**, where no discount generated around **$13.3K profit**, while medium discounts produced a **$30.7K loss**. **Machines** also declined from **$27.1K profit** with no discount to a **$19.6K loss** under high discounts.
 
-This shows that discounting can increase order activity, but aggressive discounts can significantly reduce margins. Discount strategies should be applied selectively, especially in categories where profit is highly sensitive to discount levels.
+This shows that discounting can increase order activity, but aggressive discounts can significantly reduce margins. Discount strategies should be reviewed carefully and applied selectively, especially in categories such as **Binders, Tables, Machines, and Appliances**, where profit is highly sensitive to discount levels.
 
 ### 3. Profitability Differs by Customer Segment
 
@@ -178,7 +174,7 @@ Across segments, the top profit categories were:
 - **Corporate:** Copiers (**$19.0K profit**) and Accessories (**$12.7K profit**)
 - **Home Office:** Copiers (**$12.5K profit**) and Phones (**$8.9K profit**)
 
-A key finding is that **Copiers rank 1st by profit across all three segments**, even though they do not always rank highest by sales. This indicates that high sales volume does not always equal high profitability, and that segment-level strategy should prioritise high-margin categories rather than only high-revenue categories.
+A key finding is that **Copiers rank 1st by profit across all three segments**, even though they do not always rank highest by sales volume. For example, Copiers rank only **8th by sales** in both the Consumer and Corporate segments, but **1st by profit** in both segments. This indicates that high sales volume does not always equal high profitability, and that segment-level strategy should prioritise high-margin categories rather than only high-revenue categories.
 
 ### 4. Employee Profit Contribution Is Category-Dependent
 
@@ -188,9 +184,31 @@ For example, **Employee 3** generated **41.4%** of their profit from Binders, wh
 
 This indicates that employee performance should not be assessed only by total sales or total profit. Category-level contribution provides a clearer view of strengths, specialisation areas, and potential training opportunities.
 
+Employee contribution analysis shows that employees rely on different categories for profit. Some employees have a more balanced category mix, while others depend heavily on one category.
+
+Examples:
+
+- **Employee 3**
+  - Binders contribute **41.4%** of total employee profit  
+  - Accessories contribute **14.0%**
+
+- **Employee 8**
+  - Copiers contribute **42.0%** of total employee profit  
+  - Accessories contribute **20.4%**
+
+- **Employee 5**
+  - Copiers contribute **25.9%** of total employee profit  
+  - Accessories contribute **15.6%**
+
+- **Employee 6**
+  - Binders contribute **27.8%** of total employee profit  
+  - Copiers contribute **15.7%**
+
+This indicates that employee performance is strongly affected by category mix. For performance review or training, it would be more useful to look at category-level contribution instead of only total sales or total profit.
+
 ### 5. Profitability Ratio Highlights Strong and Weak Category Combinations
 
-The user-defined function calculates profitability ratio as **Profit / Sales**, helping compare how efficiently sales are converted into profit.
+The user-defined function calculates the profitability ratio as **Profit / Sales**, helping compare how efficiently sales are converted into profit.
 
 Some employee-category combinations show strong profitability:
 
@@ -214,81 +232,9 @@ This confirms that not all sales contribute positively to profit. Categories suc
 
 The main issue is not sales volume alone. The business generated strong total sales, but profitability varies significantly by **discount level**, **product category**, **customer segment**, and **employee-category combination**.
 
-Some categories generate revenue but become unprofitable under heavier discounts, while others such as **Copiers, Labels, and Paper** show stronger profit efficiency. A more effective strategy would focus on protecting high-margin categories, controlling discount levels, and using segment-level and employee-level insights to guide sales and performance decisions.
+Some categories generate revenue but become unprofitable under heavier discounts, while others, such as **Copiers, Labels, and Paper** show stronger profit efficiency. A more effective strategy would focus on protecting high-margin categories, controlling discount levels, and using segment-level and employee-level insights to guide sales and performance decisions.
 
 ## Key Insights  
-
-High discount levels (>20%) significantly erode profitability, with medium and high discounts generating losses of approximately $58K and $76K, respectively, while no-discount sales contribute over $320K in profit.  
-
-Discounted transactions collectively result in a net loss (~$34K), indicating that current discount strategies are financially unsustainable.  
-
-While Phones and Chairs generate the highest revenue (~$330K each), Copiers deliver the highest profit (~$55K), suggesting stronger margins.  
-
-Certain categories such as Tables and Bookcases operate at a loss, highlighting potential pricing or cost inefficiencies.  
-
-The dataset contains **9,994 transaction rows** across **5,009 distinct orders**, covering sales activity from **2014 to 2017**. Total sales across the dataset are approximately **$2.30M**, with total profit of about **$286.4K**. The dataset includes **793 customers**, **1,862 products**, and **9 employees**, which provides enough depth to analyse sales performance across time, customer segments, product categories, and employee contribution.
-
-### 1. Furnishings Sales Trend
-
-The quarterly sales trend for the **Furnishings** category shows clear variation over time. Sales are strongest in the later quarters, especially in Q4.
-
-- Highest quarter: **Q4-2017**, with approximately **$12.5K** in Furnishings sales  
-- Second highest: **Q4-2016**, with approximately **$12.1K**  
-- Lowest quarter: **Q1-2014**, with approximately **$1.6K**  
-- Other low-performing quarters include **Q2-2014 (~$2.2K)** and **Q1-2017 (~$2.8K)**  
-
-This shows that Furnishings sales are not evenly distributed across the year. Q4 appears to be the strongest period, suggesting that inventory planning and promotions for this category should be focused around end-of-year demand.
-
-### 2. Discount Impact on Profit
-
-Discount analysis shows that higher discount levels do not always lead to better profit outcomes. Several categories generate strong profit with no discount or low discount, while medium and high discounts often reduce profitability.
-
-For example:
-
-- **Binders**
-  - No Discount: **$39.3K profit**
-  - Low Discount: **$29.4K profit**
-  - High Discount: **-$38.5K loss**
-
-- **Tables**
-  - No Discount: **$13.3K profit**
-  - Low Discount: **-$304 loss**
-  - Medium Discount: **-$30.7K loss**
-
-- **Machines**
-  - No Discount: **$27.1K profit**
-  - Low Discount: **$5.8K profit**
-  - Medium Discount: **-$10.0K loss**
-  - High Discount: **-$19.6K loss**
-
-- **Appliances**
-  - No Discount: **$23.2K profit**
-  - Low Discount: **$3.6K profit**
-  - High Discount: **-$8.6K loss**
-
-This suggests that discounting can increase order activity, but it can also damage profitability when applied too aggressively. Categories such as **Binders, Tables, Machines, and Appliances** are particularly sensitive to high discount levels and should be reviewed carefully before applying broad promotions.
-
-### 3. Customer Segment Profitability
-
-Customer segment analysis shows that the most profitable categories differ by segment.
-
-Top profit categories by segment:
-
-- **Consumer**
-  - Copiers: **$24.1K profit**
-  - Phones: **$23.8K profit**
-
-- **Corporate**
-  - Copiers: **$19.0K profit**
-  - Accessories: **$12.7K profit**
-
-- **Home Office**
-  - Copiers: **$12.5K profit**
-  - Phones: **$8.9K profit**
-
-Copiers rank as the most profitable category across all three customer segments, even though they do not always rank highest by sales volume. For example, Copiers rank only **8th by sales** in both the Consumer and Corporate segments, but **1st by profit** in both segments.
-
-This shows that high sales volume does not always equal high profitability. Copiers appear to be a high-margin category and should be prioritised in segment-level product and sales strategies.
 
 ### 4. Employee Profit Contribution by Category
 
