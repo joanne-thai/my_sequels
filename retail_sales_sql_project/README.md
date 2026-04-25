@@ -19,6 +19,7 @@ The business needs to answer several key questions:
 Answering these questions helps improve pricing decisions, segment targeting, category focus, and internal performance reporting.
 
 ## Data Model  
+
 The dataset follows a relational structure where `orders` acts as the central fact table, connected to dimension tables including `product`, `customer`, and `employee`. This structure resembles a star schema, enabling efficient analytical queries across multiple business dimensions.
 
 ## Approach
@@ -38,7 +39,7 @@ This workflow combines one-off analysis with reusable SQL components for reporti
 
 ## Data Preparation  
 
-### 1. Data Validation
+### Data Validation
 
 The project begins with basic validation checks on the raw data before any analysis is performed.
 
@@ -49,7 +50,7 @@ This includes:
 
 This step is important because the rest of the analysis depends on reliable dates and usable category labels. It also shows awareness that analysis should start with data quality checks, not just reporting queries. 
 
-### 2. Data Cleaning
+### Data Cleaning
 
 The SQL script standardises both `ORDER_DATE` and `SHIP_DATE` using `STR_TO_DATE()` and conditional logic.
 
@@ -145,7 +146,7 @@ This improves reusability because the same logic can be called with different em
 
 The dataset contains **9,994 transaction rows** across **5,009 distinct orders**, covering sales activity from **2014 to 2017**. Overall, the business generated approximately **$2.30M in sales** and **$286.4K in profit**, across **793 customers**, **1,862 products**, and **9 employees**.
 
-### 1. Sales Performance Varies Over Time
+### Sales Performance Varies Over Time
 
 The quarterly sales trend for the **Furnishings** category shows clear variation across the four-year period. Sales are strongest in the later quarters, especially in Q4.
 
@@ -156,7 +157,7 @@ The quarterly sales trend for the **Furnishings** category shows clear variation
 
 This suggests that 'Furnishings' sales are not evenly distributed across time, with stronger performance concentrated toward the end of the year.  Q4 appears to be the strongest period, suggesting that inventory planning and promotions for this category should be focused on end-of-year demand.
 
-### 2. Heavy Discounts Often Reduce Profitability
+### Heavy Discounts Often Reduce Profitability
 
 The discount analysis shows that higher discounts do not always improve profit. Several categories perform well with no or low discounts but become unprofitable when discounts increase.
 
@@ -164,7 +165,7 @@ For example, **Binders** generated approximately **$39.3K profit** with no disco
 
 This shows that discounting can increase order activity, but aggressive discounts can significantly reduce margins. Discount strategies should be reviewed carefully and applied selectively, especially in categories such as **Binders, Tables, Machines, and Appliances**, where profit is highly sensitive to discount levels.
 
-### 3. Profitability Differs by Customer Segment
+### Profitability Differs by Customer Segment
 
 Customer segment analysis shows that the most profitable categories vary by segment, but **Copiers** consistently stand out as a high-profit category.
 
@@ -176,17 +177,11 @@ Across segments, the top profit categories were:
 
 A key finding is that **Copiers rank 1st by profit across all three segments**, even though they do not always rank highest by sales volume. For example, Copiers rank only **8th by sales** in both the Consumer and Corporate segments, but **1st by profit** in both segments. This indicates that high sales volume does not always equal high profitability, and that segment-level strategy should prioritise high-margin categories rather than only high-revenue categories.
 
-### 4. Employee Profit Contribution Is Category-Dependent
+### Employee Profit Contribution Is Category-Dependent
 
 Employee performance is not evenly distributed across product categories. Some employees rely heavily on a small number of categories for profit, which suggests that category mix plays an important role in performance evaluation.
 
-For example, **Employee 3** generated **41.4%** of their profit from Binders, while **Employee 8** generated **42.0%** of their profit from Copiers and **20.4%** from Accessories. **Employee 5** also showed strong dependence on Copiers, which contributed **25.9%** of their total profit.
-
-This indicates that employee performance should not be assessed only by total sales or total profit. Category-level contribution provides a clearer view of strengths, specialisation areas, and potential training opportunities.
-
-Employee contribution analysis shows that employees rely on different categories for profit. Some employees have a more balanced category mix, while others depend heavily on one category.
-
-Examples:
+For example:
 
 - **Employee 3**
   - Binders contribute **41.4%** of total employee profit  
@@ -204,11 +199,13 @@ Examples:
   - Binders contribute **27.8%** of total employee profit  
   - Copiers contribute **15.7%**
 
-This indicates that employee performance is strongly affected by category mix. For performance review or training, it would be more useful to look at category-level contribution instead of only total sales or total profit.
+This indicates that employee performance should not be assessed only by total sales or total profit. Category-level contribution provides a clearer view of strengths, specialisation areas, and potential training opportunities.
 
-### 5. Profitability Ratio Highlights Strong and Weak Category Combinations
+### Profitability Ratio Highlights Strong and Weak Category Combinations
 
-The user-defined function calculates the profitability ratio as **Profit / Sales**, helping compare how efficiently sales are converted into profit.
+The user-defined function helps comparing how efficiently sales are converted into profit, with the profitability ratio calculated as:
+
+**Profitability Ratio = Profit / Sales**
 
 Some employee-category combinations show strong profitability:
 
@@ -228,79 +225,107 @@ Other combinations show negative profitability:
 
 This confirms that not all sales contribute positively to profit. Categories such as **Labels, Paper, and Copiers** show strong profitability in some cases, while **Tables, Supplies, Machines, and Furnishings** require closer review.
 
+### Reusable Employee Reporting
+
+The stored procedure allows sales and profit to be calculated dynamically by employee and date range. For example, it can return total sales and total profit for **Employee 3** during **December 2016** without rewriting the query.
+
+This makes the project stronger than a set of one-off queries because it supports repeatable reporting. The same logic can be reused for different employees, periods, and performance checks.
+
 ### Core Issue
 
 The main issue is not sales volume alone. The business generated strong total sales, but profitability varies significantly by **discount level**, **product category**, **customer segment**, and **employee-category combination**.
 
 Some categories generate revenue but become unprofitable under heavier discounts, while others, such as **Copiers, Labels, and Paper** show stronger profit efficiency. A more effective strategy would focus on protecting high-margin categories, controlling discount levels, and using segment-level and employee-level insights to guide sales and performance decisions.
 
-## Key Insights  
+## Recommendations
 
-### 4. Employee Profit Contribution by Category
+### Control High-Discount Strategies
 
-Employee contribution analysis shows that employees rely on different categories for profit. Some employees have a more balanced category mix, while others depend heavily on one category.
+Discount analysis shows that aggressive discounting can significantly reduce profitability. For example, **Binders** generated **$39.3K profit** with no discount but produced a **$38.5K loss** under high discounts. **Tables** also shifted from **$13.3K profit** with no discount to a **$30.7K loss** under medium discounts, while **Machines** declined from **$27.1K profit** with no discount to a **$19.6K loss** under high discounts.
 
-Examples:
+- Limit high discounts on categories with strong margin sensitivity, such as Binders, Tables, Machines, and Appliances
+- Use low or controlled discounts where profit remains positive
+- Review discount approval rules for categories that turn unprofitable under heavier markdowns
 
-- **Employee 3**
-  - Binders contribute **41.4%** of total employee profit  
-  - Accessories contribute **14.0%**
+**Expected Impact:** Improve profitability by reducing margin erosion from excessive discounting.
 
-- **Employee 8**
-  - Copiers contribute **42.0%** of total employee profit  
-  - Accessories contribute **20.4%**
+### Prioritise High-Margin Categories
 
-- **Employee 5**
-  - Copiers contribute **25.9%** of total employee profit  
-  - Accessories contribute **15.6%**
+The analysis shows that **Copiers** are the strongest profit category across all customer segments. Copiers rank **1st by profit** for Consumer, Corporate, and Home Office segments, generating **$24.1K**, **$19.0K**, and **$12.5K** in profit respectively. Other strong categories include **Phones**, **Accessories**, **Labels**, and **Paper**.
 
-- **Employee 6**
-  - Binders contribute **27.8%** of total employee profit  
-  - Copiers contribute **15.7%**
+- Prioritise Copiers in sales campaigns and customer recommendations
+- Promote high-profit categories differently by segment
+- Protect pricing on high-margin categories instead of relying on discounts
+- Use high-margin products as anchors in bundles or cross-sell strategies
 
-This indicates that employee performance is strongly affected by category mix. For performance review or training, it would be more useful to look at category-level contribution instead of only total sales or total profit.
+**Expected Impact:** Increase profit efficiency by focusing on categories that convert sales into stronger profit.
 
-### 5. Profitability Ratio by Employee and Category
+### Tailor Product Strategy by Customer Segment
 
-The user-defined function calculates the profitability ratio as:
+Customer segments do not generate profit from the same categories. For example, **Consumer** and **Home Office** segments perform strongly in **Copiers** and **Phones**, while the **Corporate** segment performs strongly in **Copiers** and **Accessories**.
 
-`Profitability Ratio = Profit / Sales`
+- Build segment-specific product recommendations
+- Focus Consumer and Home Office promotions on Copiers and Phones
+- Focus Corporate promotions on Copiers and Accessories
+- Avoid applying the same product strategy across all segments
 
-The results show that some employee-category combinations are highly profitable, while others create losses.
+**Expected Impact:** Improve targeting by aligning product focus with each segment’s strongest profit categories.
 
-Strong profitability examples:
+### Review Low-Profit and Negative-Profit Categories
 
-- Employee 1 — Labels: **47.9% profitability ratio**
-- Employee 3 — Labels: **47.4%**
-- Employee 1 — Paper: **45.7%**
-- Employee 5 — Copiers: **45.3%**
-- Employee 1 — Copiers: **45.0%**
+Several employee-category combinations show negative profitability, including **Employee 5 — Tables (-21.3%)**, **Employee 7 — Supplies (-20.1%)**, **Employee 3 — Furnishings (-17.0%)**, and **Employee 8 — Machines/Tables (-16.5%)**. This indicates that some categories may generate sales but reduce overall profit.
 
-Weak or negative profitability examples:
+- Investigate why Tables, Supplies, Machines, and Furnishings show negative profitability in certain cases
+- Review pricing, discount levels, product cost, and sales approach for these categories
+- Reduce focus on consistently unprofitable combinations unless there is a strategic reason to keep them
+- Compare negative-profit categories against discount levels to identify margin leakage
 
-- Employee 5 — Tables: **-21.3%**
-- Employee 7 — Supplies: **-20.1%**
-- Employee 3 — Furnishings: **-17.0%**
-- Employee 8 — Machines: **-16.5%**
-- Employee 8 — Tables: **-16.5%**
+**Expected Impact:** Reduce losses from categories that generate revenue but weaken profitability.
 
-This confirms that not all revenue contributes positively to profit. Categories such as **Labels, Paper, and Copiers** show strong profitability in some employee-category combinations, while **Tables, Supplies, Machines, and Furnishings** show negative profitability in others.
+### Use Employee-Category Insights for Performance Management
 
-### 6. Reusable Employee Reporting
+Employee contribution analysis shows that profit contribution is highly category-dependent. For example, **Employee 3** generates **41.4%** of profit from Binders, while **Employee 8** generates **42.0%** from Copiers and **20.4%** from Accessories. This suggests that employees may have different category strengths.
 
-The stored procedure allows sales and profit to be calculated dynamically by employee and date range. For example, it can return total sales and total profit for **Employee 3** during **December 2016** without rewriting the query.
+- Use category-level contribution to identify employee strengths
+- Assign or support employees based on stronger category performance
+- Provide training for categories where profitability is weak or negative
+- Avoid evaluating employees only by total sales or total profit
 
-This makes the project stronger than a set of one-off queries because it supports repeatable reporting. The same logic can be reused for different employees, periods, and performance checks.
+**Expected Impact:** Improve performance management by identifying specialisation areas and targeted training opportunities.
 
-### Overall Issue
+### Plan Furnishings Inventory Around Stronger Quarters
 
-The analysis shows that the business should not focus only on increasing sales volume. Profitability varies significantly by discount level, category, customer segment, and employee-category combination.
+The Furnishings category shows stronger performance in Q4, with **Q4 2017 (~$12.5K)** and **Q4 2016 (~$12.1K)** recording the highest sales. In contrast, **Q1 2014 (~$1.6K)** was the lowest-performing quarter.
 
-The main issue is that some areas generate revenue but reduce profit, especially when heavy discounts are applied. A stronger strategy would focus on profitable categories such as **Copiers, Labels, Paper, and Phones**, while reviewing high-risk categories such as **Tables, Machines, Supplies, and heavily discounted Binders**.
+- Increase inventory planning and promotional focus for Furnishings in Q4
+- Avoid overstocking during weaker quarters unless supported by promotions
+- Review whether Q4 demand is linked to seasonal purchasing behaviour
+
+**Expected Impact:** Improve inventory planning and reduce mismatch between stock levels and demand.
+
+### Expand Reusable SQL Reporting
+
+The project already includes a user-defined function for profitability ratio and a stored procedure for employee-level sales and profit by date range. This makes the analysis reusable rather than limited to one-off queries.
+
+- Extend stored procedures for customer segment, category, and discount-level reporting
+- Create reusable views for key analysis outputs such as discount profitability and employee-category performance
+- Standardise profitability ratio logic so it can be reused across reports
+
+**Expected Impact:** Faster reporting, less repeated SQL logic, and more consistent analysis across future business questions.
 
 ## Technical Skills Demonstrated  
 
-Data validation and cleaning in SQL, complex joins across relational tables, Common Table Expressions (CTEs), window functions, conditional logic (`CASE WHEN`), user-defined functions (UDF), and stored procedures for automation.
+- **Relational database analysis:** Joined Orders, Product, Customer, and Employees tables to analyse sales, profit, discounts, customer segments, and employee performance.
+- **Data validation:** Checked record counts, missing dates, and product category distribution before analysis.
+- **Data cleaning:** Standardised inconsistent `ORDER_DATE` and `SHIP_DATE` formats using conditional logic and `STR_TO_DATE()`.
+- **Common Table Expressions (CTEs):** Used CTEs to structure multi-step analysis for discount classification, customer segment ranking, and employee-category reporting.
+- **Window functions:** Applied `DENSE_RANK()` to rank product categories within each customer segment, and `SUM() OVER (PARTITION BY ...)` to calculate employee category profit contribution.
+- **Conditional classification:** Used `CASE` statements to group discounts into No Discount, Low Discount, Medium Discount, and High Discount levels.
+- **Aggregation analysis:** Calculated total sales, total profit, distinct order counts, and category-level contribution using grouped queries.
+- **Date-based analysis:** Used `YEAR()` and `QUARTER()` to analyse quarterly sales trends.
+- **User-defined function (UDF):** Created `get_employee_profit()` to calculate profitability ratio by employee and product category.
+- **Stored procedure:** Created `CalculateTotalRevenue()` to return sales and profit dynamically by employee and date range.
+- **Reusable SQL logic:** Designed queries and procedures that can be reused for different employees, categories, discount levels, and reporting periods.
 
 ---
 
