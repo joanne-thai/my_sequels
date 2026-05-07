@@ -8,10 +8,7 @@ USE retail_project;
 -- profitability, and employee performance using SQL.
 -- =========================================================
 
--- =========================================================
--- 1. DATA VALIDATION (RAW DATA CHECK)
--- Understand data quality before cleaning
--- =========================================================
+-- DATA VALIDATION (RAW DATA CHECK)
 
 -- Check total records
 SELECT COUNT(*) AS total_orders FROM orders;
@@ -27,9 +24,9 @@ FROM product
 GROUP BY CATEGORY;
 
 -- =========================================================
--- 2. DATA CLEANING
+-- DATA CLEANING
+
 -- Standardise date fields in the orders table
--- =========================================================
 UPDATE orders 
 SET 
     ORDER_DATE = CASE
@@ -47,9 +44,8 @@ SET
 ;
 
 -- =========================================================
--- 3. QUARTERLY SALES TREND
+-- QUARTERLY SALES TREND
 -- Analyze quarterly sales performance for the Furniture category
--- =========================================================
 
 SELECT CONCAT('Q', QUARTER(ORDER_DATE),'-', YEAR(ORDER_DATE)) AS 'QUARTER', 
 		ROUND(SUM(SALES),2) AS TOTAL_SALES 
@@ -60,10 +56,8 @@ GROUP BY CONCAT('Q', QUARTER(ORDER_DATE),'-', YEAR(ORDER_DATE)), YEAR(ORDER_DATE
 ORDER BY YEAR(ORDER_DATE), QUARTER(ORDER_DATE);
 
 -- =========================================================
--- 4. DISCOUNT IMPACT ANALYSIS
--- Evaluate how discount levels affect order volume and profit
--- across product categories
--- =========================================================
+-- DISCOUNT IMPACT ANALYSIS
+-- Evaluate how discount levels affect order volume and profit across product categories
 
 WITH discount_classified AS 
 (
@@ -83,11 +77,9 @@ GROUP BY CATEGORY, DISCOUNT_LEVEL
 ORDER BY CATEGORY;
 
 -- =========================================================
--- 5. CUSTOMER SEGMENT PROFITABILITY
--- Identify the top 2 most profitable product categories
--- within each customer segment
--- =========================================================
-
+-- CUSTOMER SEGMENT PROFITABILITY
+-- Identify the top 2 most profitable product categories within each customer segment
+ 
 WITH segment_rank AS
 (
 SELECT c.SEGMENT, p.CATEGORY, 
@@ -107,10 +99,8 @@ GROUP BY SEGMENT, CATEGORY, PROFIT_RANK
 ;
 
 -- =========================================================
--- 6. EMPLOYEE CATEGORY CONTRIBUTION
--- Show each employee's profit by category and the share
--- each category contributes to their total profit
--- =========================================================
+-- EMPLOYEE CATEGORY CONTRIBUTION
+-- Show each employee's profit by category and the share each category contributes to their total profit
 
 WITH employee_profit AS 
 (
@@ -128,9 +118,8 @@ ORDER BY ID_EMPLOYEE ASC, PROFIT_PERCENTAGE DESC
 ;
 
 -- =========================================================
--- 7. USER-DEFINED FUNCTION
+-- USER-DEFINED FUNCTION
 -- Return profit ratio for a given employee and category
--- =========================================================
 
 DELIMITER $$
 DROP FUNCTION IF EXISTS get_employee_profit;
@@ -170,9 +159,8 @@ FROM employee_category ec
 ORDER BY ID_EMPLOYEE, PROFITABILITY_RATIO DESC;
 
 -- =========================================================
--- 8. STORED PROCEDURE
+-- STORED PROCEDURE
 -- Return employee sales and profit for a selected date range
--- =========================================================
 
 DELIMITER $$
 DROP PROCEDURE IF EXISTS CalculateTotalRevenue;
