@@ -29,7 +29,25 @@ SELECT * FROM watch_history LIMIT 10;
 SELECT * FROM reviews LIMIT 10;
 
 -- --------------------------------------------------------------------
--- 2. Remove the old audit table if it exists
+-- 2. Remove exact duplicate rows (before any cleaning)
+-- --------------------------------------------------------------------
+-- The raw tables contain exact full-row duplicates (e.g. 5,000 in
+-- watch_history). They must be removed before aggregates such as
+-- SUM(watch_duration_minutes) are reliable. Because the duplicates are
+-- exact copies, SELECT DISTINCT * collapses them. Columns are still raw
+-- strings at this point, so no typing information is lost.
+
+CREATE TABLE users_dedup         AS SELECT DISTINCT * FROM users;
+DROP TABLE users;         RENAME TABLE users_dedup         TO users;
+CREATE TABLE movies_dedup        AS SELECT DISTINCT * FROM movies;
+DROP TABLE movies;        RENAME TABLE movies_dedup        TO movies;
+CREATE TABLE watch_history_dedup AS SELECT DISTINCT * FROM watch_history;
+DROP TABLE watch_history; RENAME TABLE watch_history_dedup TO watch_history;
+CREATE TABLE reviews_dedup       AS SELECT DISTINCT * FROM reviews;
+DROP TABLE reviews;       RENAME TABLE reviews_dedup       TO reviews;
+
+-- --------------------------------------------------------------------
+-- 2b. Remove the old audit table if it exists
 -- --------------------------------------------------------------------
 
 DROP TABLE IF EXISTS data_correction_audit;
@@ -181,8 +199,16 @@ SET
         WHEN UPPER(TRIM(is_verified_watch)) = 'FALSE' THEN '0'
         ELSE NULLIF(TRIM(is_verified_watch), '')
     END,
-    helpful_votes = NULLIF(TRIM(helpful_votes), ''),
-    total_votes = NULLIF(TRIM(total_votes), ''),
+    helpful_votes = CASE
+        WHEN NULLIF(TRIM(helpful_votes), '') REGEXP '^[0-9]+(\\.0+)?$'
+            THEN CAST(CAST(TRIM(helpful_votes) AS DECIMAL(10,0)) AS CHAR)
+        ELSE NULLIF(TRIM(helpful_votes), '')
+    END,
+    total_votes = CASE
+        WHEN NULLIF(TRIM(total_votes), '') REGEXP '^[0-9]+(\\.0+)?$'
+            THEN CAST(CAST(TRIM(total_votes) AS DECIMAL(10,0)) AS CHAR)
+        ELSE NULLIF(TRIM(total_votes), '')
+    END,
     review_text = NULLIF(TRIM(review_text), ''),
     sentiment = COALESCE(NULLIF(TRIM(sentiment), ''), 'Unknown'),
     sentiment_score = NULLIF(TRIM(sentiment_score), '');
@@ -193,7 +219,7 @@ SET
 
 UPDATE users
 SET
-    age = CASE WHEN age IS NOT NULL AND age NOT REGEXP '^[-]?[0-9]+(\\.[0-9]+)?$' THEN NULL ELSE age END,
+    age = CASE WHEN age IS NOT NULL AND age NOT REGEXP '^[0-9]+(\\.[0-9]+)?$' THEN NULL ELSE age END,
     subscription_start_date = DATE_FORMAT(parse_date_flexible(subscription_start_date), '%Y-%m-%d'),
     is_active = CASE WHEN is_active IS NOT NULL AND is_active NOT IN ('0', '1') THEN NULL ELSE is_active END,
     monthly_spend = CASE
@@ -288,12 +314,12 @@ SET
     END,
     helpful_votes = CASE
         WHEN helpful_votes IS NOT NULL
-         AND helpful_votes NOT REGEXP '^[0-9]+(\\.[0-9]+)?$' THEN NULL
+         AND helpful_votes NOT REGEXP '^[0-9]+$' THEN NULL
         ELSE helpful_votes
     END,
     total_votes = CASE
         WHEN total_votes IS NOT NULL
-         AND total_votes NOT REGEXP '^[0-9]+(\\.[0-9]+)?$' THEN NULL
+         AND total_votes NOT REGEXP '^[0-9]+$' THEN NULL
         ELSE total_votes
     END,
     sentiment_score = CASE
@@ -366,8 +392,8 @@ ALTER TABLE reviews
     MODIFY review_date DATE,
     MODIFY device_type VARCHAR(50),
     MODIFY is_verified_watch TINYINT(1),
-    MODIFY helpful_votes DECIMAL(10,1),
-    MODIFY total_votes DECIMAL(10,1),
+    MODIFY helpful_votes INT,
+    MODIFY total_votes INT,
     MODIFY review_text TEXT,
     MODIFY sentiment VARCHAR(50),
     MODIFY sentiment_score DECIMAL(5,3);
@@ -376,6 +402,23 @@ DESCRIBE users;
 DESCRIBE movies;
 DESCRIBE watch_history;
 DESCRIBE reviews;
+
+-- --------------------------------------------------------------------
+-- 5b. Range-clip session metrics (match the Python workflow)
+-- --------------------------------------------------------------------
+-- Invalidate out-of-range values so binge/anomalous durations do not skew
+-- aggregates. Values outside the valid range become NULL and are excluded
+-- from SUM/AVG, exactly as in the Python cleaning step.
+
+UPDATE watch_history
+SET watch_duration_minutes = NULL
+WHERE watch_duration_minutes IS NOT NULL
+  AND watch_duration_minutes NOT BETWEEN 0 AND 720;
+
+UPDATE watch_history
+SET progress_percentage = NULL
+WHERE progress_percentage IS NOT NULL
+  AND progress_percentage NOT BETWEEN 0 AND 100;
 
 -- --------------------------------------------------------------------
 -- 6. Analytics queries on the typed base tables
@@ -438,7 +481,7 @@ WITH age_group_summary AS (
     FROM users AS u
     JOIN watch_history AS w
         ON u.user_id = w.user_id
-    WHERE u.age IS NOT NULL
+    WHERE u.age IS NOT NULL AND u.age BETWEEN 10 AND 100
 )
 SELECT
     age_group,

@@ -21,11 +21,15 @@ def standardize_column_names(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def get_age_group(age: float) -> str:
-    """Create simple age buckets for beginner-friendly analysis."""
-    if pd.isna(age):
+    """Create simple age buckets that match the SQL workflow.
+
+    Missing or out-of-range ages are labelled "Unknown" so they are excluded
+    from the age-group analysis rather than being imputed into a real band.
+    """
+    if pd.isna(age) or age < 10 or age > 100:
         return "Unknown"
-    if age < 18:
-        return "Under 18"
+    if age <= 17:
+        return "10-17"
     if age <= 24:
         return "18-24"
     if age <= 34:
@@ -88,14 +92,10 @@ def clean_users(users: pd.DataFrame) -> pd.DataFrame:
         users["primary_device"].fillna("Unknown").astype("string").str.strip()
     )
 
-    # Fill simple numeric missing values with medians.
-    users["age"] = users["age"].fillna(users["age"].median())
-    users["monthly_spend"] = users["monthly_spend"].fillna(users["monthly_spend"].median())
-    users["household_size"] = users["household_size"].fillna(users["household_size"].median())
-
-    # Keep only reasonable ages for this simple project.
-    users = users[users["age"].between(10, 100)].copy()
-
+    # Do not impute missing numeric values. Missing ages stay missing and are
+    # labelled "Unknown" by get_age_group so they are excluded from the
+    # age-group analysis instead of being pushed into the median band. Real
+    # users with a missing age are still kept for country/plan analysis.
     users["age_group"] = users["age"].apply(get_age_group)
 
     return users
@@ -140,18 +140,17 @@ def clean_watch_history(watch_history: pd.DataFrame) -> pd.DataFrame:
         {"US": "USA", "UNITED STATES": "USA", "CANADA": "Canada"}
     )
 
-    # Fill missing session metrics with medians so the analysis stays simple.
-    watch_history["watch_duration_minutes"] = watch_history["watch_duration_minutes"].fillna(
-        watch_history["watch_duration_minutes"].median()
-    )
-    watch_history["progress_percentage"] = watch_history["progress_percentage"].fillna(
-        watch_history["progress_percentage"].median()
-    )
-
-    watch_history = watch_history[
-        watch_history["watch_duration_minutes"].between(0, 720)
-        & watch_history["progress_percentage"].between(0, 100)
-    ].copy()
+    # Do not impute missing session metrics. Instead, invalidate out-of-range
+    # values (set them to NaN) so a valid duration is never dropped just
+    # because progress is missing. sum()/mean() skip NaN automatically.
+    watch_history.loc[
+        ~watch_history["watch_duration_minutes"].between(0, 720),
+        "watch_duration_minutes",
+    ] = pd.NA
+    watch_history.loc[
+        ~watch_history["progress_percentage"].between(0, 100),
+        "progress_percentage",
+    ] = pd.NA
 
     return watch_history
 
@@ -235,6 +234,24 @@ def main() -> None:
         .sort_values(ascending=False)
     )
 
+    total_watch_time_by_genre = (
+        watch_analysis.groupby("genre_primary")["watch_duration_minutes"]
+        .sum()
+        .sort_values(ascending=False)
+    )
+
+    # Age-group engagement, excluding users whose age is missing/out of range.
+    age_group_engagement = (
+        watch_analysis[watch_analysis["age_group"] != "Unknown"]
+        .groupby("age_group")
+        .agg(
+            total_sessions=("session_id", "nunique"),
+            average_watch_time_minutes=("watch_duration_minutes", "mean"),
+            average_progress_percentage=("progress_percentage", "mean"),
+        )
+        .sort_values("total_sessions", ascending=False)
+    )
+
     average_rating_by_device = (
         reviews_clean.groupby("device_type")["rating"]
         .mean()
@@ -253,6 +270,12 @@ def main() -> None:
 
     print("\nAVERAGE WATCH TIME BY GENRE")
     print(average_watch_time_by_genre.round(2).head(10))
+
+    print("\nTOTAL WATCH TIME BY GENRE")
+    print(total_watch_time_by_genre.round(2).head(10))
+
+    print("\nAGE GROUP ENGAGEMENT")
+    print(age_group_engagement.round(2))
 
     print("\nAVERAGE RATING BY DEVICE")
     print(average_rating_by_device.round(2))
@@ -298,6 +321,22 @@ def main() -> None:
         "Country",
         "Number of Users",
         "user_count_by_country_top_10.png",
+    )
+
+    save_bar_chart(
+        total_watch_time_by_genre.head(10),
+        "Total Watch Time by Genre (Top 10)",
+        "Genre",
+        "Total Watch Time (Minutes)",
+        "total_watch_time_by_genre_top_10.png",
+    )
+
+    save_bar_chart(
+        age_group_engagement["total_sessions"],
+        "Sessions by Age Group",
+        "Age Group",
+        "Number of Sessions",
+        "sessions_by_age_group.png",
     )
 
     print(f"\nCharts saved to: {OUTPUT_DIR}")

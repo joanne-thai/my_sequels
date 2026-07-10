@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project analyses a Netflix User Behavior dataset using two intentionally separate workflows: a MySQL SQL workflow and a Python workflow. Both use the same source CSV files but each cleans and analyses the data independently, so the project shows both skills clearly.
+This project analyses a Netflix User Behavior dataset using two intentionally separate workflows: a MySQL SQL workflow and a Python workflow. Both use the same source CSV files and each cleans and analyses the data with its own code, but they follow a consistent cleaning policy so the two reconcile to identical figures — showing both skills clearly while staying internally consistent.
 
 The dataset combines user-level, movie-level, watch-session-level, and review-level information, making it possible to study viewing behaviour from multiple angles. The workflow simulates a real-world analytics process, including raw data inspection, cleaning, type conversion, exploratory analysis, and chart generation.
 
@@ -62,17 +62,19 @@ This step matters because all downstream cleaning, joins, and aggregations depen
 
 ### Data Cleaning
 
-Both workflows perform parallel cleaning steps:
+Both workflows perform parallel cleaning steps and are aligned so they produce the same numbers:
 
+- remove exact duplicate rows in every table (both workflows) — e.g. the 5,000 duplicate watch sessions
 - trim and normalise text fields
 - collapse country variants (`US`, `USA`, `United States` → `USA`)
 - map booleans (`TRUE`/`FALSE`) to `1`/`0`
 - replace empty strings and unconvertible values with `NULL`
 - parse `subscription_start_date`, `created_at`, `watch_date`, `added_to_platform`, and `review_date` using flexible format helpers
 - convert MySQL columns to typed forms (`DATE`, `DATETIME(6)`, `DECIMAL`, `TINYINT(1)`, `INT`)
-- in Python: drop duplicates, fill numeric medians, and clip `watch_duration_minutes` to `[0, 720]` and `progress_percentage` to `[0, 100]`
+- range-clip session metrics by invalidation: values outside `watch_duration_minutes` `[0, 720]` or `progress_percentage` `[0, 100]` are set to `NULL`/`NaN` rather than imputed
+- no median imputation: missing numeric values are left missing so `SUM`/`AVG` skip them, and missing/out-of-range ages are excluded from the age-group analysis (not pushed into a real band)
 
-This cleaning ensures joins between watch history, users, and movies produce reliable session counts and watch-time aggregates.
+This cleaning ensures joins between watch history, users, and movies produce reliable session counts and watch-time aggregates, and that the SQL and Python workflows report identical figures.
 
 ## Key Analyses
 
@@ -106,46 +108,48 @@ The Python script saves the following charts to `python/output/`:
 
 - `total_watch_time_by_subscription_type.png`
 - `average_watch_time_by_genre.png`
+- `total_watch_time_by_genre_top_10.png`
 - `watch_time_distribution.png`
+- `sessions_by_age_group.png`
 - `average_rating_by_device.png`
 - `user_count_by_country_top_10.png`
 
 ## Key Insights
 
-The raw dataset contains **10,300 user rows**, **1,040 movie rows**, **105,000 watch sessions**, and **15,450 reviews**. After cleaning (duplicate removal, age range filter, watch-time clipping), the analysis runs on **9,826 users**, **1,000 movies**, **99,851 watch sessions**, and **15,000 reviews**, covering watch activity from **2024-01-01 to 2025-12-31** across **2 countries** (USA, Canada).
+The raw dataset contains **10,300 user rows**, **1,040 movie rows**, **105,000 watch sessions**, and **15,450 reviews**. After cleaning (exact-duplicate removal and range-clipping, with no imputation), the analysis runs on **10,000 users**, **1,000 movies**, **100,000 watch sessions**, and **15,000 reviews**, covering watch activity from **2024-01-01 to 2025-12-31** across **2 countries** (USA, Canada). Users with a missing or out-of-range age are kept for country and plan analysis but excluded from the age-group breakdown.
 
 ### Standard and Premium Plans Drive Most Viewing
 
 Total watch time is concentrated in the mid-tier plans. The breakdown by subscription plan is:
 
-- **Standard:** ~2.18M minutes
-- **Premium:** ~2.15M minutes
-- **Basic:** ~1.23M minutes
-- **Premium+:** ~0.61M minutes
+- **Standard:** ~2.01M minutes
+- **Premium:** ~1.98M minutes
+- **Basic:** ~1.13M minutes
+- **Premium+:** ~0.57M minutes
 
 Standard and Premium together account for roughly **70% of all watch minutes**, while the highest tier, **Premium+**, contributes the least. This suggests that the bulk of engagement comes from mainstream plans, and that plan upgrades to Premium+ do not translate into proportionally higher viewing. Subscription strategy should focus on retaining Standard and Premium users, while reviewing whether Premium+ delivers enough additional value to justify its price.
 
 ### Genres Differ Between "Long Sessions" and "High Volume"
 
-Average watch time per session is similar across genres (roughly 62–65 minutes), but the leaders differ from the genres with the highest total watch time:
+Average watch time per session is similar across genres (roughly 64–67 minutes), but the leaders differ from the genres with the highest total watch time:
 
-- **Highest average watch time per session:** Romance (~65.3 min), Horror (~64.2 min), Thriller (~63.6 min)
-- **Highest total watch time:** Adventure (~424K min), Animation (~370K min), Comedy (~362K min)
+- **Highest average watch time per session:** Romance (~67.0 min), Horror (~65.9 min), Thriller (~65.3 min)
+- **Highest total watch time:** Adventure (~390K min), Animation (~341K min), Comedy (~332K min)
 
 Romance, Horror, and Thriller hold attention longest per sitting, but Adventure, Animation, and Comedy generate the most watching overall because they are watched more often. Content investment should distinguish between **engagement-per-session genres** (good for premium content positioning) and **volume genres** (good for catalogue breadth and retention).
 
-### Engagement Peaks in the 25–54 Age Range
+### Engagement Concentrates in the 25–44 Core
 
-Session counts vary sharply by age group, while average watch time and progress are nearly flat:
+Session counts vary by age group, while average watch time and progress are nearly flat (age computed only for users with a known, in-range age):
 
-- **35-44:** ~38K sessions, 62.8 avg minutes, 50.0% avg progress
-- **25-34:** ~25K sessions
-- **45-54:** ~14K sessions
-- **18-24:** ~11K sessions
-- **Under 18:** ~5K sessions
+- **35-44:** ~26.1K sessions, 64.1 avg minutes, 50.1% avg progress
+- **25-34:** ~25.4K sessions
+- **45-54:** ~14.2K sessions
+- **18-24:** ~10.8K sessions
+- **10-17:** ~5.0K sessions
 - **55+:** ~4.7K sessions
 
-The 25–54 bracket drives most viewing volume, with the 35–44 group alone accounting for roughly **39% of all sessions**. Average watch time per session and average progress are essentially flat across age groups, meaning younger and older users behave similarly *per session* — they just watch less often. Marketing and recommendation effort should prioritise the 25–54 core, while the 18–24 and 55+ bands represent growth opportunities if frequency can be lifted.
+The 25–44 bracket drives most viewing volume, but the two leading bands — **35-44 (~30% of sessions) and 25-34 (~30%) — are essentially tied**, not a single dominant group. (An earlier version overstated 35-44 at ~39%; that was an artifact of imputing the median age onto the ~12% of users with a missing age, which piled them into the 35-44 band. With imputation removed, the two core bands are level.) Average watch time per session and average progress are essentially flat across age groups, meaning younger and older users behave similarly *per session* — they just watch less often. Marketing and recommendation effort should prioritise the 25–44 core, while the 18–24 and 55+ bands represent growth opportunities if frequency can be lifted.
 
 ### Device Choice Has Little Effect on Review Ratings
 
@@ -162,8 +166,8 @@ The spread between the highest and lowest device is only **0.05 stars**, well wi
 
 The cleaned user base is split between only two countries:
 
-- **USA:** 6,879 users (~70%)
-- **Canada:** 2,947 users (~30%)
+- **USA:** 6,993 users (~70%)
+- **Canada:** 3,007 users (~30%)
 
 Geographic targeting should be built around USA-first defaults, with Canada-specific adjustments where needed. Any "global" assumptions in the analysis should be replaced with **North-America-specific** assumptions, since no other regions are represented in this dataset.
 
@@ -195,11 +199,11 @@ Adventure, Animation, and Comedy lead in total watch time, while Romance, Horror
 
 ### Focus Growth on Under-Represented Age Bands
 
-The 25–54 core drives most sessions, while 18–24 and 55+ lag despite similar per-session engagement.
+The 25–44 core (35-44 and 25-34, nearly tied) drives most sessions, while 18–24 and 55+ lag despite similar per-session engagement.
 
 - Target acquisition and re-engagement campaigns at 18–24 and 55+ users
 - Test content rows and recommendations tuned to those bands
-- Avoid investing further in 35–44 acquisition where the user base is already saturated
+- Treat the 25-44 core as two comparably sized bands rather than a single 35-44 peak when sizing campaigns
 
 **Expected Impact:** Lift session frequency in the bands that already engage well per session.
 
@@ -242,7 +246,7 @@ The SQL workflow already includes reusable date-parsing functions (`parse_date_f
 - **Common Table Expressions (CTEs):** Used CTEs to structure age-group engagement and top-genre analysis.
 - **Conditional classification:** Used `CASE` expressions to bucket ages into bands and to map raw booleans and country variants.
 - **Aggregation analysis:** Calculated total and average watch time, distinct session counts, average review ratings, and user counts.
-- **Python pandas workflow:** Replicated cleaning and analysis in Python, including duplicate removal, type coercion, median imputation, range filtering, and groupby aggregation.
+- **Python pandas workflow:** Replicated cleaning and analysis in Python, including duplicate removal, type coercion, range-clipping by invalidation (no imputation), and groupby aggregation — aligned with the SQL workflow to produce identical figures.
 - **Visualisation:** Generated bar charts and a histogram with matplotlib for subscription, genre, device, country, and watch-time distribution.
 
 ## How to Run
